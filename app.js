@@ -101,7 +101,9 @@ Respond ONLY in JSON:
     lastResult = data;
     showResult(data);
   } catch (err) {
-    showToast("❌ Analysis failed. Try again.", "error");
+    console.error('Analysis failed:', err);
+    const msg = err?.message ? `❌ ${err.message}` : "❌ Analysis failed. Try again.";
+    showToast(msg, "error");
     resetUpload();
   } finally {
     aiLoader.style.display = 'none';
@@ -247,9 +249,19 @@ async function callGeminiVision(prompt, b64DataUrl) {
     body: JSON.stringify(payload)
   });
 
-  if (!res.ok) throw new Error(`API Error: ${res.status}`);
+  if (!res.ok) {
+    let details = '';
+    try {
+      details = await res.text();
+    } catch {
+      details = '';
+    }
+    throw new Error(`API Error: ${res.status}${details ? ` - ${details}` : ''}`);
+  }
   const json = await res.json();
-  return json.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  const text = json.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  if (!text) throw new Error('Empty response from Gemini');
+  return text;
 }
 
 /* ===== UTILS ===== */
