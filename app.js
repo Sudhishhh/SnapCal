@@ -216,12 +216,14 @@ function updateMiniRing(el, percent) {
 
 /* ===== VISION API (Gemini) ===== */
 function getGeminiKey() {
+  // Require the key to be injected into the page (e.g. via config.js at build/deploy time).
+  // For production deployments (Vercel), generate a `config.js` that sets `window.__ENV__`.
   return (window.__ENV__?.GEMINI_API_KEY || '').trim();
 }
 
 async function callGeminiVision(prompt, b64DataUrl) {
   const apiKey = getGeminiKey();
-  if (!apiKey) throw new Error('Missing GEMINI_API_KEY');
+  if (!apiKey) throw new Error('Missing GEMINI_API_KEY — set window.__ENV__.GEMINI_API_KEY or run `localStorage.setItem("GEMINI_API_KEY","YOUR_KEY")` in the console');
 
   const base64Data = b64DataUrl.split(',')[1];
   const mimeType = b64DataUrl.split(';')[0].split(':')[1];

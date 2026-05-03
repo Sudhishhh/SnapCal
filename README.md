@@ -75,6 +75,22 @@ If needed, update these constants in app.js:
 - HF_API
 - HF_MODEL
 
+### Vercel deployment (use environment variable)
+
+When deploying to Vercel, do NOT embed the API key directly in client code. Instead generate a small `config.js` at build time that injects the value into `window.__ENV__`.
+
+1. Add a file `generate-config.js` to the project root (already provided) which writes `config.js` from `process.env.GEMINI_API_KEY`.
+2. In the Vercel project settings, create an Environment Variable named `GEMINI_API_KEY` with your key.
+3. Set the Vercel Project Build Command to:
+
+```bash
+node generate-config.js
+```
+
+This will create `config.js` before Vercel serves your static files. `app.js` expects `window.__ENV__.GEMINI_API_KEY` to be set by `config.js`.
+
+Note: For production security, prefer a server-side proxy (serverless function) that holds the key and forwards requests — avoid exposing long-lived API keys in client-side code.
+
 ## Usecase
 
 - Solves a real daily pain point in health tracking
